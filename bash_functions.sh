@@ -4,7 +4,7 @@ function createproj() {
 		mkdir -p ~/projects/$lang;
 	fi
     if [ -d ~/projects/$lang/$name ]; then
-        echo "Project already exist.";
+        echo "$lang/$name already exist.";
     fi
 	(cd ~/projects/$lang &&
 	if [ $lang == 'php' ]; then
@@ -20,7 +20,7 @@ function createproj() {
     		elif [ $framework == 'fuelphp' ]; then
     			composer create-project fuel/fuel .;
     		fi
-            chmod 777 -R .;
+    		chmodproj $lang $name 777;
         fi
 	else
 		echo "Project type is unsupported at the moment.";
@@ -32,25 +32,49 @@ function cdproj() {
     if [ -d ~/projects/$lang/$name ]; then
         cd ~/projects/$lang/$name;
     else
-        echo "Project does not exist.";
+        echo "$lang/$name does not exist.";
     fi
 }
 
 function delproj() {
     local lang=$1 name=$2;
     if [ -d ~/projects/$lang/$name ]; then
-        rm -rf ~/projects/$lang/$name;
-        echo "Project has been deleted.";
+        stopproj $lang $name && rm -rf ~/projects/$lang/$name;
+        echo "$lang/$name has been deleted.";
     else
-        echo "Project does not exist.";
+        echo "$lang/$name does not exist.";
     fi
 }
 
 function runproj() {
     local lang=$1 name=$2;
     if [ -d ~/projects/$lang/$name ]; then
-        cdproj $lang $name && ./start;
+        chmodproj $lang $name 777 && cdproj $lang $name && ./start;
+        echo "$lang/$name is now running."''
     else
-        echo "Project does not exist.";
+        echo "$lang/$name does not exist.";
     fi
+}
+
+function stopproj() {
+	local lang=$1 name=$2;
+	if [ -d ~/projects/$lang/$name ]; then
+		docker stop $(docker ps -f "name=$name" -q) >> /dev/null 2>&1;
+		docker rm $(docker ps -a -f "name=$name" -q) >> /dev/null 2>&1;
+		docker volume rm $(docker volume ls -f "name=$name" -q) >> /dev/null 2>&1;
+		docker network rm $(docker network ls -f "name=$name" -q) >> /dev/null 2>&1;
+		echo "$lang/$name has been stopped.";
+	else
+		echo "$lang/$name does not exist.";
+	fi
+}
+
+function chmodproj() {
+	local lang=$1 name=$2 mode=$3;
+	if [ -d ~/projects/$lang/$name ]; then
+		cdproj $lang $name && sudo chmod $mode -R app >> /dev/null 2>&1;
+		echo "Chmod $mode recursively applied on $lang/$name";
+	else
+		echo "$lang/$name does not exist.";
+	fi
 }

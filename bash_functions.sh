@@ -1,5 +1,5 @@
 function createproj() {
-    local lang=$1 name=$2 framework=$3 port=$4;
+    local lang=$1 name=$2 port=$3 framework=$4;
 	if [ ! -d ~/projects/$lang ]; then
 		mkdir -p ~/projects/$lang;
 	fi

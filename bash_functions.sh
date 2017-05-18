@@ -21,7 +21,7 @@ function createproj() {
     		elif [ $framework == 'fuelphp' ]; then
     			cmdproj $lang $name "composer create-project fuel/fuel .";
     		fi
-    		chmodproj $lang $name 777;
+    		chmodproj $lang $name;
         fi
 	else
 		echo "Project type is unsupported at the moment.";
@@ -50,12 +50,7 @@ function delproj() {
 function runproj() {
     local lang=$1 name=$2;
     if [ -d ~/projects/$lang/$name ]; then
-    	read -p "Do you want to chmod app files? (y/n) " -n 1 -r
-    	echo
-    	if [[ $REPLY =~ ^[Yy]$ ]]; then
-    		chmodproj $lang $name 777;
-    	fi
-        cdproj $lang $name && ./start;
+    	cdproj $lang $name && ./start;
         echo "$lang/$name is now running."''
     else
         echo "$lang/$name does not exist.";
@@ -78,7 +73,11 @@ function stopproj() {
 function chmodproj() {
 	local lang=$1 name=$2 mode=$3;
 	if [ -d ~/projects/$lang/$name ]; then
-		cmdproj $lang $name "chmod $mode -R /var/www/html/";
+	    if [ $mode ]; then
+	        cmdproj $lang $name "chmod -R $mode /var/www/html";
+	    else
+	        cmdproj $lang $name "chmod -R 777 /var/www/html";
+	    fi
 		echo "Chmod $mode recursively applied on $lang/$name";
 	else
 		echo "$lang/$name does not exist.";

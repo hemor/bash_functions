@@ -100,9 +100,9 @@ function cmdproj() {
 }
 
 function ttyproj() {
-    local lang=$1 name=$2;
+    local lang=$1 name=$2 service=$3;
     if [ -d ~/projects/$lang/$name ]; then
-        cmdproj $lang $name "/bin/bash";
+        cmdproj $lang $name "/bin/bash" $service;
     else
         echo "$lang/$name does not exist.";
     fi

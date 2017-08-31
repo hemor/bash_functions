@@ -107,3 +107,12 @@ function ttyproj() {
         echo "$lang/$name does not exist.";
     fi
 }
+
+function clonedpm() {
+    local folder=$1;
+    if [ $folder ]; then
+        git clone https://github.com/hemor/docker_php_mysql.git $folder;
+    else
+        git clone https://github.com/hemor/docker_php_mysql.git
+    fi
+}
